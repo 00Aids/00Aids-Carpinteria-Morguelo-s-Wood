@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | Carpintería Morguelo's Wood</title>
+    <link rel="icon" href="/img/leon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-wood-dark: #5D4037;
+            --color-wood-medium: #8D6E63;
+            --color-wood-light: #D7CCC8;
+            --color-accent: #FF9800;
+            --color-text-dark: #3E2723;
+            --color-text-light: #EFEBE9;
+            --color-background: #F5F5F5;
+            --shadow-soft: 0 10px 30px rgba(61, 31, 19, 0.1);
+            --shadow-strong: 0 15px 40px rgba(61, 31, 19, 0.2);
+            --transition-smooth: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Raleway', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Patrón de fondo */
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%238d6e63' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        /* Efecto de grano de madera */
+        .grain {
+            position: fixed;
+            top: -150%;
+            left: -50%;
+            right: -50%;
+            bottom: -150%;
+            width: 300%;
+            height: 300%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.035;
+            animation: grain 8s steps(10) infinite;
+            z-index: 0;
+        }
+
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-5%, -10%); }
+            30% { transform: translate(3%, -15%); }
+            50% { transform: translate(-10%, 5%); }
+            70% { transform: translate(10%, 15%); }
+            90% { transform: translate(5%, 10%); }
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Header y navegación */
+        header {
+            background: linear-gradient(to right, rgba(93, 64, 55, 0.95), rgba(141, 110, 99, 0.95));
+            padding: 15px 40px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        header .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        header .logo img {
+            height: 60px;
+            width: auto;
+            transition: var(--transition-smooth);
+        }
+
+        header .logo img:hover {
+            transform: rotate(10deg);
+        }
+
+        header .logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-text-light);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        header nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+        }
+
+        header nav ul li a {
+            color: var(--color-text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            font-size: 1rem;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        header nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--color-accent);
+            transition: var(--transition-smooth);
+        }
+
+        header nav ul li a:hover {
+            color: var(--color-accent);
+        }
+
+        header nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero section */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(rgba(62, 39, 35, 0.7), rgba(62, 39, 35, 0.4)), url('/img/FondoCarpinteria.jpg') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(to top, var(--color-background), transparent);
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            animation: fadeIn 1.2s ease forwards;
+        }
+
+        .hero-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            color: var(--color-text-light);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-content h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background-color: var(--color-accent);
+        }
+
+        .hero-content p {
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            color: var(--color-text-light);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Dashboard cards */
+        .dashboard {
+            padding: 80px 40px;
+            position: relative;
+        }
+
+        .dashboard-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--color-wood-dark);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .dashboard-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background-color: var(--color-accent);
+        }
+
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .dashboard-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-strong);
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--color-wood-dark), var(--color-accent));
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--color-accent);
+        }
+
+        .dashboard-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--color-wood-dark);
+        }
+
+        .dashboard-card p {
+            color: var(--color-wood-medium);
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-wood-dark);
+            margin-bottom: 10px;
+        }
+
+        .card-link {
+            display: inline-block;
+            color: var(--color-accent);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        .card-link:hover {
+            color: var(--color-wood-dark);
+            transform: translateX(5px);
+        }
+
+        /* Sección de búsqueda de vehículos */
+        .buscador-vehiculo {
+            background-color: var(--color-wood-light);
+            padding: 80px 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .buscador-vehiculo::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to bottom, transparent, var(--color-wood-light));
+        }
+
+        .buscador-vehiculo h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: var(--color-wood-dark);
+            position: relative;
+            display: inline-block;
+        }
+
+        .buscador-vehiculo h2::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background-color: var(--color-accent);
+        }
+
+        .buscador-contenedor {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            align-items: stretch;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .buscador-item {
+            flex: 1;
+            max-width: 450px;
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition-smooth);
+        }
+
+        .buscador-item:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-strong);
+        }
+
+        .buscador-item h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--color-wood-dark);
+        }
+
+        .buscador-item form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .buscador-item input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1rem;
+            border: 2px solid var(--color-wood-light);
+            border-radius: 8px;
+            outline: none;
+            transition: var(--transition-smooth);
+            font-family: 'Raleway', sans-serif;
+        }
+
+        .buscador-item input[type="text"]:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.2);
+        }
+
+        .buscador-item button {
+            padding: 12px 25px;
+            font-size: 1rem;
+            background-color: var(--color-wood-dark);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-family: 'Raleway', sans-serif;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .buscador-item button:hover {
+            background-color: var(--color-accent);
+            transform: translateY(-3px);
+        }
+
+        /* Sección de por qué elegirnos */
+        .quienes-somos {
+            padding: 80px 40px;
+            text-align: center;
+            background-color: white;
+            position: relative;
+        }
+
+        .quienes-somos h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: var(--color-wood-dark);
+            position: relative;
+            display: inline-block;
+        }
+
+        .quienes-somos h2::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background-color: var(--color-accent);
+        }
+
+        .quienes-somos p {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--color-wood-medium);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .feature {
+            background-color: var(--color-background);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition-smooth);
+            text-align: left;
+        }
+
+        .feature:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-strong);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--color-accent);
+        }
+
+        .feature h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--color-wood-dark);
+        }
+
+        .feature p {
+            color: var(--color-wood-medium);
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        /* Sección de contacto */
+        .contacto {
+            background-color: var(--color-wood-dark);
+            padding: 80px 40px;
+            text-align: center;
+            color: var(--color-text-light);
+        }
+
+        .contacto h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: var(--color-text-light);
+            position: relative;
+            display: inline-block;
+        }
+
+        .contacto h2::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background-color: var(--color-accent);
+        }
+
+        .contacto p {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            font-size: 1.2rem;
+        }
+
+        .contact-info {
+            max-width: 1000px;
+            margin: 40px auto;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+
+        .contact-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px 20px;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .contact-card:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .contact-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--color-accent);
+        }
+
+        .contact-card strong {
+            color: var(--color-accent);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .contact-card p {
+            margin: 5px 0;
+            font-size: 1rem;
+        }
+        /* Footer */
+        footer {
+            background-color: var(--color-text-dark);
+            color: var(--color-text-light);
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            opacity: 0.7;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            header {
+                padding: 15px 20px;
+            }
+
+            header .logo h1 {
+                font-size: 1.5rem;
+            }
+
+            header nav ul {
+                gap: 15px;
+            }
+
+            .hero-content h2 {
+                font-size: 2.8rem;
+            }
+
+            .dashboard, .buscador-vehiculo, .quienes-somos, .contacto {
+                padding: 60px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            header nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            header nav ul li a {
+                font-size: 0.9rem;
+                padding: 5px 10px;
+            }
+
+            .hero-content h2 {
+                font-size: 2.2rem;
+            }
+
+            .hero-content p {
+                font-size: 1.2rem;
+            }
+
+            .dashboard-title, .buscador-vehiculo h2, .quienes-somos h2, .contacto h2 {
+                font-size: 2rem;
+            }
+
+            .buscador-contenedor {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .buscador-item {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+    <div class="grain"></div>
+
+    <header>
+        <div class="logo">
+            <img src="/img/logo-morguelos-wood.png" alt="Logo Carpintería Morguelo's Wood" />
+            <h1>Carpintería Morguelo's Wood</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/clientes">Gestión de Clientes</a></li>
+                <li><a href="/proyectos">Gestión de Proyectos</a></li>
+                <li><a href="/mecanicos">Gestión de Carpinteros</a></li>
+                <li><a href="/facturas">Gestión de Facturas</a></li>
+                <li><a href="/administrador/">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <div class="hero-content">
+            <h2>Panel de Administración</h2>
+            <p>Bienvenido al sistema de gestión de Carpintería Morguelo's Wood. Desde aquí podrás administrar todos los aspectos de nuestro taller de carpintería.</p>
+        </div>
+    </div>
+
+    <section class="dashboard">
+        <h2 class="dashboard-title">Resumen del Taller</h2>
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <div class="card-icon">👥</div>
+                <h3>Clientes Activos</h3>
+                <div class="stat"></div>
+                <p>Gestiona la información de tus clientes y sus proyectos asociados.</p>
+                <a href="/clientes" class="card-link">Ver todos los clientes →</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">🪑</div>
+                <h3>Proyectos en Curso</h3>
+                <div class="stat"></div>
+                <p>Supervisa los proyectos actuales y su estado de avance.</p>
+                <a href="/proyectos" class="card-link">Ver todos los proyectos →</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">🔨</div>
+                <h3>Carpinteros Disponibles</h3>
+                <div class="stat"></div>
+                <p>Administra el equipo de carpinteros y asigna proyectos.</p>
+                <a href="/mecanicos" class="card-link">Ver todos los carpinteros →</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">📊</div>
+                <h3>Facturación Mensual</h3>
+                <div class="stat"></div>
+                <p>Revisa los ingresos y genera nuevas facturas para los clientes.</p>
+                <a href="/facturas" class="card-link">Ver todas las facturas →</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="quienes-somos" class="quienes-somos">
+        <h2>¿Por Qué Somos Diferentes?</h2>
+        <p>En Carpintería Morguelo's Wood nos distinguimos por nuestra dedicación a la excelencia y el compromiso con cada proyecto que realizamos.</p>
+        
+        <div class="features-grid">
+            <div class="feature">
+                <div class="feature-icon">🌟</div>
+                <h3>Artesanía de Calidad</h3>
+                <p>Nuestros carpinteros son maestros artesanos con años de experiencia, garantizando acabados perfectos en cada pieza.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🌳</div>
+                <h3>Materiales Sostenibles</h3>
+                <p>Utilizamos maderas certificadas y sostenibles, contribuyendo a la preservación del medio ambiente.</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">⏱️</div>
+                <h3>Entregas Puntuales</h3>
+                <p>Nos comprometemos con los plazos establecidos, respetando el tiempo de nuestros clientes.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="contacto" class="contacto">
+        <h2>Información de Contacto</h2>
+        <p>Estamos disponibles para atender cualquier consulta o solicitud.</p>
+        <div class="contact-info">
+            <div class="contact-card">
+                <strong>Teléfono</strong>
+                <p>+57 3172713778</p>
+            </div>
+            
+            <div class="contact-card">
+                <strong>Dirección</strong>
+                <p>Calle 102 #123, Bucaramanga</p>
+            </div>
+            
+            <div class="contact-card">
+                <strong>Email</strong>
+                <p>contacto@morgueloswood.com</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Carpintería Morguelo's Wood. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

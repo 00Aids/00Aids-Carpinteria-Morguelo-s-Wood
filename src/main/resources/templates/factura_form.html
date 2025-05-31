@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${factura.id != null ? 'Editar Factura' : 'Nueva Factura'}">Formulario de Factura</title>
+    <link rel="icon" href="/img/leon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-wood-dark: #5D4037;
+            --color-wood-medium: #8D6E63;
+            --color-wood-light: #D7CCC8;
+            --color-accent: #FF9800;
+            --color-text-dark: #3E2723;
+            --color-text-light: #EFEBE9;
+            --color-background: #F5F5F5;
+            --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.15);
+            --border-radius: 8px;
+            --transition-smooth: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Raleway', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text-dark);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wood-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23D7CCC8"/><path d="M0,0 L200,200 M50,0 L200,150 M100,0 L200,100 M150,0 L200,50 M0,50 L150,200 M0,100 L100,200 M0,150 L50,200" stroke="%238D6E63" stroke-width="1" stroke-opacity="0.2"/></svg>');
+            opacity: 0.15;
+            z-index: -1;
+        }
+
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.5 0"/></filter><rect width="500" height="500" filter="url(%23noise)" opacity="0.3"/></svg>');
+            opacity: 0.05;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--color-wood-dark), var(--color-wood-medium));
+            color: var(--color-text-light);
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium);
+            padding: 40px 30px 30px 30px;
+            position: relative;
+        }
+
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--color-wood-dark);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--color-wood-dark);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--color-wood-light);
+            margin-bottom: 18px;
+            font-size: 1rem;
+            background: #f9f6f4;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input[type="text"]:focus, input[type="number"]:focus {
+            border-color: var(--color-accent);
+            outline: none;
+        }
+
+        .repuestos-group {
+            margin-bottom: 18px;
+        }
+
+        .repuesto-item {
+            background: #f7ede7;
+            border-radius: 5px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .wood-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            font-family: 'Raleway', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            border: none;
+        }
+
+        .wood-btn.primary-btn {
+            background-color: var(--color-accent);
+            color: var(--color-text-dark);
+            box-shadow: 0 4px 0 #e65100;
+        }
+
+        .wood-btn.primary-btn:hover {
+            background-color: #FB8C00;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 #e65100;
+        }
+
+        .wood-btn.secondary-btn {
+            background-color: var(--color-wood-dark);
+            color: var(--color-text-light);
+            box-shadow: 0 4px 0 #3E2723;
+        }
+
+        .wood-btn.secondary-btn:hover {
+            background-color: #4E342E;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 #3E2723;
+        }
+
+        .btn-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="wood-background"></div>
+    <div class="grain-overlay"></div>
+
+    <header>
+        <span class="header-title">Carpintería Morguelo's Wood</span>
+    </header>
+
+    <div class="form-container">
+        <h2 class="form-title" th:text="${factura.id != null ? 'Editar Factura' : 'Nueva Factura'}"></h2>
+
+        <form th:action="@{${factura.id != null ? '/facturas/actualizar/' + factura.id : '/facturas/guardar'}}"
+              th:object="${factura}" method="post">
+
+            <label>Cliente</label>
+            <select th:field="*{cliente}" required>
+                <option value="">Seleccione un Cliente</option>
+                <option th:each="cliente : ${clientes}"
+                        th:value="${cliente.id}"
+                        th:text="${cliente.nombre}"></option>
+            </select>
+
+            <label>Proyecto</label>
+            <select th:field="*{proyecto}" required>
+                <option value="">Seleccione un Proyecto</option>
+                <option th:each="proyecto : ${proyectos}"
+                        th:value="${proyecto.id}"
+                        th:text="${proyecto.nombreProyecto}"></option>
+            </select>
+
+            <label>Carpintero</label>
+            <select th:field="*{mecanico}" required>
+                <option value="">Seleccione un Carpintero</option>
+                <option th:each="mec : ${mecanicos}"
+                        th:value="${mec.id}"
+                        th:text="${mec.nombre}"></option>
+            </select>
+			
+
+			<div class="repuestos-group">
+			    <label>Repuestos</label>
+			    <div th:each="rep : ${repuestos}" class="repuesto-item">
+			        <input class="form-check-input" type="checkbox"
+			               th:name="'repuestosSeleccionados'"
+			               th:value="${rep.id}"
+			               th:id="'check-' + ${rep.id}" />
+			        <label class="form-check-label"
+			               th:for="'check-' + ${rep.id}"
+			               th:text="${rep.nombre + ' ($' + rep.precio + ')'}"></label>
+			        <input type="number" min="1" step="1"
+			               th:name="'cantidad-' + ${rep.id}" 
+			               placeholder="Cantidad"
+			               style="width: 100px; margin-left: 10px;" />
+			    </div>
+			</div>
+
+
+			<label>Fecha</label>
+			<input type="date" th:field="*{fecha}">
+
+         
+            <div class="form-actions">
+                <button type="submit" class="wood-btn primary-btn">
+                    <span class="btn-icon">💾</span>
+                    Guardar
+                </button>
+                <a href="/facturas" class="wood-btn secondary-btn">
+                    <span class="btn-icon">←</span>
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
