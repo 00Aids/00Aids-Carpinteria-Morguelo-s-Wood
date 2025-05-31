@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Proyectos | Carpintería Morguelo's Wood</title>
+    <link rel="icon" href="/img/leon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-wood-dark: #5D4037;
+            --color-wood-medium: #8D6E63;
+            --color-wood-light: #D7CCC8;
+            --color-accent: #FF9800;
+            --color-text-dark: #3E2723;
+            --color-text-light: #EFEBE9;
+            --color-background: #F5F5F5;
+            --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.15);
+            --shadow-strong: 0 10px 20px rgba(0, 0, 0, 0.2);
+            --transition-smooth: all 0.3s ease;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Raleway', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text-dark);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            padding: 0;
+        }
+
+        /* Fondo con textura de madera */
+        .wood-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23D7CCC8"/><path d="M0,0 L200,200 M50,0 L200,150 M100,0 L200,100 M150,0 L200,50 M0,50 L150,200 M0,100 L100,200 M0,150 L50,200" stroke="%238D6E63" stroke-width="1" stroke-opacity="0.2"/></svg>');
+            opacity: 0.15;
+            z-index: -1;
+        }
+
+        /* Overlay con patrón de grano de madera */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.5 0"/></filter><rect width="500" height="500" filter="url(%23noise)" opacity="0.3"/></svg>');
+            opacity: 0.05;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--color-wood-dark), var(--color-wood-medium));
+            color: var(--color-text-light);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-home {
+            width: 60px;
+            height: auto;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            transition: var(--transition-smooth);
+        }
+
+        .logo-home:hover {
+            transform: scale(1.05);
+        }
+
+        .header-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .page-title-container {
+            background-color: white;
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--color-wood-dark);
+            margin: 0;
+            position: relative;
+            display: inline-block;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--color-accent);
+            border-radius: 1.5px;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 100px 20px;
+        }
+
+        .table-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium);
+            padding: 25px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .table-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--color-wood-dark), var(--color-accent));
+        }
+
+        .wood-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+        }
+
+        .wood-table th {
+            background-color: var(--color-wood-dark);
+            color: var(--color-text-light);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--color-accent);
+        }
+
+        .wood-table th:first-child {
+            border-top-left-radius: var(--border-radius);
+        }
+
+        .wood-table th:last-child {
+            border-top-right-radius: var(--border-radius);
+        }
+
+        .wood-table td {
+            padding: 14px 15px;
+            border-bottom: 1px solid var(--color-wood-light);
+            font-size: 0.95rem;
+            transition: var(--transition-smooth);
+        }
+
+        .wood-table tr:hover td {
+            background-color: rgba(215, 204, 200, 0.2);
+        }
+
+        .wood-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .wood-table tr:last-child td:first-child {
+            border-bottom-left-radius: var(--border-radius);
+        }
+
+        .wood-table tr:last-child td:last-child {
+            border-bottom-right-radius: var(--border-radius);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background-color: var(--color-wood-medium);
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: var(--color-wood-dark);
+            transform: translateY(-2px);
+        }
+
+        .delete-btn {
+            background-color: #d32f2f;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #b71c1c;
+            transform: translateY(-2px);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+
+        .wood-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            border-radius: var(--border-radius);
+            font-family: 'Raleway', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .wood-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent);
+            background-size: 10px 10px;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .primary-btn {
+            background-color: var(--color-accent);
+            color: var(--color-text-dark);
+            box-shadow: 0 4px 0 #e65100;
+        }
+
+        .primary-btn:hover {
+            background-color: #FB8C00;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 #e65100;
+        }
+
+        .primary-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 0 #e65100;
+        }
+
+        .secondary-btn {
+            background-color: var(--color-wood-dark);
+            color: var(--color-text-light);
+            box-shadow: 0 4px 0 #3E2723;
+        }
+
+        .secondary-btn:hover {
+            background-color: #4E342E;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 0 #3E2723;
+        }
+
+        .secondary-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 0 #3E2723;
+        }
+
+        .btn-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .header-title {
+                font-size: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .table-container {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .header-content {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .page-title-container {
+                padding: 20px;
+            }
+            
+            .page-title {
+                font-size: 1.6rem;
+            }
+            
+            .wood-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .button-container {
+                flex-direction: column;
+            }
+            
+            .wood-btn {
+                width: 100%;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .table-container {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .wood-btn {
+            animation: fadeIn 0.8s ease-out;
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const accion = urlParams.get('accion');
+
+            if (accion) {
+                switch (accion) {
+                    case 'agregado':
+                        mostrarNotificacion("¡El proyecto ha sido agregado correctamente!");
+                        break;
+                    case 'editado':
+                        mostrarNotificacion("¡El proyecto ha sido editado correctamente!");
+                        break;
+                    case 'eliminado':
+                        mostrarNotificacion("¡El proyecto ha sido eliminado correctamente!");
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+            function mostrarNotificacion(mensaje) {
+                const notificacion = document.createElement('div');
+                notificacion.className = 'notificacion';
+                notificacion.innerHTML = `
+                    <div class="notificacion-contenido">
+                        <span class="notificacion-icono">✓</span>
+                        <span class="notificacion-mensaje">${mensaje}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(notificacion);
+                
+                setTimeout(() => {
+                    notificacion.classList.add('mostrar');
+                }, 100);
+                
+                setTimeout(() => {
+                    notificacion.classList.remove('mostrar');
+                    setTimeout(() => {
+                        document.body.removeChild(notificacion);
+                    }, 300);
+                }, 3000);
+            }
+            
+            // Estilos para la notificación
+            const estiloNotificacion = document.createElement('style');
+            estiloNotificacion.textContent = `
+                .notificacion {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 1000;
+                    transform: translateX(120%);
+                    transition: transform 0.3s ease-out;
+                }
+                
+                .notificacion.mostrar {
+                    transform: translateX(0);
+                }
+                
+                .notificacion-contenido {
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    display: flex;
+                    align-items: center;
+                }
+                
+                .notificacion-icono {
+                    font-size: 1.2rem;
+                    margin-right: 10px;
+                }
+                
+                .notificacion-mensaje {
+                    font-weight: 600;
+                }
+            `;
+            
+            document.head.appendChild(estiloNotificacion);
+        });
+    </script>
+</head>
+<body>
+    <div class="wood-background"></div>
+    <div class="grain-overlay"></div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo-container">
+                <a href="/administrador/inicio">
+                    <img src="/img/logo-morguelos-wood.png" alt="Logo Carpintería" class="logo-home">
+                </a>
+                <h1 class="header-title">Carpintería Morguelo's Wood</h1>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-title-container">
+        <h2 class="page-title">Gestión de Proyectos</h2>
+    </div>
+
+    <div class="main-content">
+        <div class="table-container">
+            <table class="wood-table">
+                <thead>
+                    <tr>
+                        <th>Nombre del Proyecto</th>
+                        <th>Descripción</th>
+                        <th>Fecha de Inicio</th>
+                        <th>Fecha de Entrega Estimada</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="proyecto : ${proyectos}">
+                        <td th:text="${proyecto.nombreProyecto}"></td>
+                        <td th:text="${proyecto.descripcion}"></td>
+                        <td th:text="${proyecto.fechaInicio}"></td>
+                        <td th:text="${proyecto.fechaEntregaEstimada}"></td>
+                        <td th:text="${proyecto.estado}"></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a th:href="@{/proyectos/editar/{id}(id=${proyecto.id})}" class="action-btn edit-btn"
+                                   onclick="return confirm('¿Estás seguro de que deseas editar este proyecto?');">Editar</a>
+                                <a th:href="@{/proyectos/eliminar/{id}(id=${proyecto.id})}" class="action-btn delete-btn"
+                                   onclick="return confirm('¿Estás seguro de que deseas eliminar este proyecto?');">Eliminar</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button-container">
+            <a th:href="@{/proyectos/nuevo}" class="wood-btn primary-btn" onclick="return confirm('¿Deseas agregar un nuevo proyecto?');">
+                <span class="btn-icon">+</span>
+                <span>Agregar Proyecto</span>
+            </a>
+            <a th:href="@{/administrador/inicio}" class="wood-btn secondary-btn">
+                <span class="btn-icon">←</span>
+                <span>Volver al Panel</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

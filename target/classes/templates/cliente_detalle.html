@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalles del Cliente</title>
+    <link rel="icon" href="/img/leon.png" />
+
+    <style>
+        /* Configuración general */
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('/img/fondodetalle.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative; /* Se añade para posicionar el logo correctamente */
+        }
+
+        /* Logo en la parte superior izquierda */
+        .logo-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 120px; /* Ajusta el tamaño del logo */
+            height: auto;
+        }
+
+        /* Contenedor principal con fondo difuminado (frosted glass) */
+        .container {
+            background: rgba(255, 255, 255, 0.2); /* Fondo semitransparente */
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px); /* Efecto de desenfoque */
+            padding: 30px;
+            max-width: 450px; /* Reducido para hacerlo más angosto */
+            width: 90%;
+            animation: fadeIn 0.5s ease;
+            overflow: hidden;
+        }
+
+        /* Animación de entrada */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Título */
+        h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            color: rgb(0, 0, 0);
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgb(255, 0, 0);
+            padding-bottom: 10px;
+        }
+
+        /* Contenedor de cada especificación */
+        .specification {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(236, 240, 241, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        /* Label de las especificaciones */
+        .specification label {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        /* Información del cliente */
+        .specification .info {
+            font-size: 1.1rem;
+            color: #34495e;
+            text-align: right;
+            font-weight: 400;
+        }
+
+        /* Estilo de los botones */
+        .buttons {
+            display: flex;
+            justify-content: center; /* Alineación centrada */
+            margin-top: 30px;
+        }
+
+        /* Estilo del botón de "Regresar" */
+        button {
+            background-color: rgb(255, 0, 0);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Mensaje de error */
+        .mensaje {
+            background-color: #e74c3c;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Logo en la parte superior izquierda -->
+<a><img src="/img/logo.png" alt="Logo" class="logo-home"></a>
+
+<!-- Contenedor principal con fondo difuminado -->
+<div class="container">
+
+    <!-- Mostrar un mensaje si el cliente no se encuentra -->
+    <div th:if="${mensaje}" class="mensaje">
+        <p th:text="${mensaje}"></p>
+    </div>
+
+    <!-- Mostrar la información del cliente -->
+    <div th:if="${cliente}">
+        <h2>Detalles del Cliente</h2>
+
+        <!-- Nombre del Cliente -->
+        <div class="specification">
+            <label>Nombre:</label>
+            <div class="info" th:text="${cliente.nombre}">Nombre del Cliente</div>
+        </div>
+
+        <!-- Email del Cliente -->
+        <div class="specification">
+            <label>Email:</label>
+            <div class="info" th:text="${cliente.email}">Email del Cliente</div>
+        </div>
+
+        <!-- Teléfono del Cliente -->
+        <div class="specification">
+            <label>Teléfono:</label>
+            <div class="info" th:text="${cliente.telefono}">Teléfono del Cliente</div>
+        </div>
+
+        <!-- Nota del Cliente -->
+        <div class="specification">
+            <label>Nota:</label>
+            <div class="info" th:text="${cliente.nota}">Nota del Cliente</div>
+        </div>
+
+        <!-- Botones -->
+        <div class="buttons">
+            <button onclick="window.history.back();">Regresar</button>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
